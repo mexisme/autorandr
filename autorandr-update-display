@@ -3,6 +3,7 @@
 # 40autorandr: Change autorandr profile on thaw/resume
 
 AUTORANDR="/usr/local/bin/autorandr"
+XRANDR="/usr/bin/xrandr"
 XBACKLIGHT="/usr/bin/xbacklight"
 
 find_user() {
@@ -25,6 +26,11 @@ run_as_x_user() {
 	    /bin/su -c "$cmd" "$user"
 	    ;;
     esac
+}
+
+switch_external_off() {
+    local user="$1"
+    run_as_x_user $user $XRANDR --output DP1 --off --output DP2 --off --output DP3 --off
 }
 
 update_backlight() {
@@ -70,6 +76,7 @@ for X in /tmp/.X11-unix/X*; do
     user=$(find_user $D)
     export DISPLAY=":$D"
 
+    switch_external_off $user
     run_as_x_user $user $AUTORANDR -c
     [[ $update_backlight ]] && update_backlight $user
 done
