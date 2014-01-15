@@ -7,7 +7,7 @@ XBACKLIGHT="/usr/bin/xbacklight"
 
 find_user() {
     local D="$1"
-    who | awk -vD="$D" '$5 ~ "\\(:"D"\\)$" {print $1}'
+    who | grep 'tty' | awk -vD="$D" '$5 ~ "\\(:"D"\\)$" {print $1}'
 }
 
 run_as_x_user() {
@@ -49,7 +49,7 @@ detect_autorandr() {
 
 update_backlight=""
 
-while "$1"; do
+while [[ "$1" ]]; do
     case "$1" in
         -backlight)
             update_backlight=1

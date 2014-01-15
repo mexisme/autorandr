@@ -1,11 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 #
 # 40autorandr: Change autorandr profile on thaw/resume
 
-UDPATE_DISPLAY=/usr/local/bin/autorandr-update-display
-
 case "$1" in
-	thaw|resume)
-		${UPDATE_DISPLAY}
-		;;
+    thaw|resume)
+	/usr/local/bin/autorandr-update-display
+	;;
+    *)
+        echo "Skipping $1 PM change..."
+        ;;
 esac
