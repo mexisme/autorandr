@@ -1,1 +1,1 @@
-SUBSYSTEM=="drm", ACTION=="change", RUN+="/usr/local/bin/autorandr-update-display"
+SUBSYSTEM=="drm", ACTION=="change", RUN+="/usr/local/bin/autorandr-update-display -backlight"
