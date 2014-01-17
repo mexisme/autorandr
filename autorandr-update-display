@@ -3,11 +3,6 @@
 DATE=$(date +%Y%m%d-%H%M%S)
 set -e
 
-exec >/tmp/autorandr.${DATE}.log 2>&1
-
-echo "=========="
-date
-
 AUTORANDR="/usr/local/bin/autorandr"
 XRANDR="/usr/bin/xrandr"
 XBACKLIGHT="/usr/bin/xbacklight"
