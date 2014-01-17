@@ -1,6 +1,12 @@
 #!/bin/bash
-#
-# 40autorandr: Change autorandr profile on thaw/resume
+
+DATE=$(date +%Y%m%d-%H%M%S)
+set -e
+
+exec >/tmp/autorandr.${DATE}.log 2>&1
+
+echo "=========="
+date
 
 AUTORANDR="/usr/local/bin/autorandr"
 XRANDR="/usr/bin/xrandr"
@@ -8,7 +14,13 @@ XBACKLIGHT="/usr/bin/xbacklight"
 
 find_user() {
     local D="$1"
-    who | grep 'tty' | awk -vD="$D" '$5 ~ "\\(:"D"\\)$" {print $1}'
+    local user=$(who | grep 'tty' | awk -vD="$D" '$0 ~ "\\(:"D"\\)$" {print $1}')
+    if [[ ! $user ]]; then
+        echo "No user found!" >&2
+	who >&2
+	exit 10
+    fi
+    echo $user
 }
 
 run_as_x_user() {
@@ -41,7 +53,7 @@ update_backlight() {
 	    run_as_x_user $user $XBACKLIGHT -set 100%
 	    ;;
 	mobile)
-	    run_as_x_user $user $XBACKLIGHT -set 70%
+	    run_as_x_user $user $XBACKLIGHT -set 40%
 	    ;;
     esac
 }

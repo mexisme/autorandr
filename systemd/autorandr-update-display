@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# autorandr: Change autorandr profile on thaw/resume
+
+case "$1" in
+    pre)
+	/usr/local/bin/autorandr-update-display
+	;;
+    *)
+        echo "Skipping $1 PM change..."
+        ;;
+esac
