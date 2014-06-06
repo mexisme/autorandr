@@ -10,7 +10,8 @@ XBACKLIGHT="/usr/bin/xbacklight"
 find_user() {
     local D="$1"
     #local user=$(who | grep 'tty' | awk -vD="$D" '$0 ~ "\\(:"D"\\)$" {print $1}')  ## Works better for GNOME
-    local user=$(who | awk -vD="$D" '$2 ~ ":"D || $0 ~ "\\(:"D"\\)$" {print $1}' |head -n 1)  ## Works better for KDE
+    #local user=$(who | awk -vD="$D m" '$2 ~ ":"D || $0 ~ "\\(:"D"\\)$" {print $1}' |head -n 1)  ## Works better for KDE
+    local user=$(who | awk -vD="$D" '$2 ~ ":"D || $0 ~ "\\(:"D"\\)$" {print $1}' |head -n 1)  ## Works better for KDE and Ubuntu
     if [[ ! $user ]]; then
         echo "No user found!" >&2
 	who >&2
