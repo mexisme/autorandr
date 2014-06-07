@@ -1,0 +1,91 @@
+#!/bin/bash
+
+DATE=$(date +%Y%m%d-%H%M%S)
+set -e
+
+AUTORANDR="/usr/local/bin/autorandr"
+XRANDR="/usr/bin/xrandr"
+XBACKLIGHT="/usr/bin/xbacklight"
+
+find_user() {
+    local D="$1"
+    #local user=$(who | grep 'tty' | awk -vD="$D" '$0 ~ "\\(:"D"\\)$" {print $1}')  ## Works better for GNOME
+    #local user=$(who | awk -vD="$D m" '$2 ~ ":"D || $0 ~ "\\(:"D"\\)$" {print $1}' |head -n 1)  ## Works better for KDE
+    local user=$(who | awk -vD="$D" '$2 ~ ":"D || $0 ~ "\\(:"D"\\)$" {print $1}' |head -n 1)  ## Works better for KDE and Ubuntu
+    if [[ ! $user ]]; then
+        echo "No user found!" >&2
+	who >&2
+	exit 10
+    fi
+    echo $user
+}
+
+run_as_x_user() {
+    local user="$1"; shift
+    local cmd="$@"
+
+    case "$user" in
+	"")
+	    ;;
+	# Run as root:
+	"(unknown)")
+	    eval ${cmd}
+	    ;;
+	*)
+	    /bin/su -c "$cmd" "$user"
+	    ;;
+    esac
+}
+
+switch_external_off() {
+    local user="$1"
+    run_as_x_user $user $XRANDR --output DP1 --off --output DP2 --off --output DP3 --off
+}
+
+update_backlight() {
+    local user="$1"
+
+    case $(detect_autorandr $user) in
+	docked)
+	    run_as_x_user $user $XBACKLIGHT -set 100%
+	    ;;
+	mobile)
+	    run_as_x_user $user $XBACKLIGHT -set 40%
+	    ;;
+    esac
+}
+
+detect_autorandr() {
+    local user="$1"
+    run_as_x_user $user $AUTORANDR |gawk '/detected/ {print $1}'
+}
+
+############################
+
+update_backlight=""
+
+while [[ "$1" ]]; do
+    case "$1" in
+        -backlight)
+            update_backlight=1
+            shift
+            ;;
+        *)
+            echo "'$1' arg not recognised" >&2
+            exit 1
+            ;;
+    esac
+done
+
+############################
+
+for X in /tmp/.X11-unix/X*; do
+    D="${X##/tmp/.X11-unix/X}"
+
+    user=$(find_user $D)
+    export DISPLAY=":$D"
+
+    switch_external_off $user
+    run_as_x_user $user $AUTORANDR -c
+    [[ $update_backlight ]] && update_backlight $user
+done
