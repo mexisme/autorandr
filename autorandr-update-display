@@ -46,18 +46,21 @@ update_backlight() {
     local user="$1"
 
     case $(detect_autorandr $user) in
-	docked)
+	docked*)
 	    run_as_x_user $user $XBACKLIGHT -set 100%
 	    ;;
-	mobile)
+	mobile*)
 	    run_as_x_user $user $XBACKLIGHT -set 40%
 	    ;;
+	*)
+            echo "Unrecognised autorandr session" >&2
+            ;;
     esac
 }
 
 detect_autorandr() {
     local user="$1"
-    run_as_x_user $user $AUTORANDR |gawk '/detected/ {print $1}'
+    run_as_x_user $user $AUTORANDR |awk '/detected/ {print $1}'
 }
 
 ############################
@@ -85,7 +88,7 @@ for X in /tmp/.X11-unix/X*; do
     user=$(find_user $D)
     export DISPLAY=":$D"
 
-    switch_external_off $user
+    #switch_external_off $user
     run_as_x_user $user $AUTORANDR -c
     [[ $update_backlight ]] && update_backlight $user
 done
